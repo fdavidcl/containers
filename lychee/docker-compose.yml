@@ -1,0 +1,88 @@
+version: '2'
+services:
+    lychee:
+        image: wonderfall/lychee
+        environment:
+            - UID=1000
+            - GID=1000
+        volumes:
+            - "./data:/data"
+            - "./data/uploads:/uploads"
+        ports:
+            - "3001:8888"
+        restart: always
+        networks:
+            - internal_network
+            - external_network
+        depends_on:
+            - db
+    ## Other options:
+    # lychee:
+    #     image: nutsllc/toybox-lychee:3.1.
+    #     environment:
+    #         - DB_HOST=mariadb
+    #         - DB_NAME=lychee_db
+    #         - DB_USER=lychee_user
+    #         - DB_PASSWORD=lychee_pass
+    #         - TOYBOX_UID=1000
+    #         - TOYBOX_GID=1000
+    #     volumes:
+    #         - "./data:/data"
+    #         - "./data/uploads/big:/uploads/big"
+    #         - "./data/uploads/medium:/uploads/medium"
+    #         - "./data/uploads/thumb:/uploads/thumb"
+    #         - "./data/uploads/import:/uploads/import"
+    #     ports:
+    #         - "3001:80"
+    #     networks:
+    #         - internal_network
+    #         - external_network
+    #     depends_on:
+    #         - db
+    # lychee:
+    #     image: linuxserver/lychee
+    #     environment:
+    #         - PUID=1000
+    #         - PGID=1000
+    #     volumes:
+    #         - "./data:/config"
+    #         - "./data/uploads:/pictures"
+    #     ports:
+    #         - "3001:80"
+    #     restart: always
+    #     networks:
+    #         - internal_network
+    #         - external_network
+    #     depends_on:
+    #         - db
+
+    db:
+        image: nutsllc/toybox-mariadb:10.1.14
+        networks:
+            - internal_network
+        volumes:
+            - "./data/mysql:/var/lib/mysql"
+        environment:
+            - MYSQL_ROOT_PASSWORD=rootpassword
+            - MYSQL_DATABASE=lychee_db
+            - MYSQL_USER=lychee_user
+            - MYSQL_PASSWORD=lychee_pass
+            - TOYBOX_UID=1000
+            - TOYBOX_GID=1000
+            - TERM=xterm
+
+networks:
+    external_network:
+    internal_network:
+        internal: true
+
+# Remember to set up your nginx: https://github.com/electerious/Lychee/issues/106
+# And point your location to
+#  proxy_pass http://127.0.0.1:3001;
+#
+# On first launch, set up your database from the web client as follows:
+# database host: db
+# database user: lychee_user
+# database pass: lychee_pass
+# database name: lychee_db
+# database prefix: [empty]
